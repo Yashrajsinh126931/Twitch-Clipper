@@ -9,13 +9,27 @@ import {
     Legend,
     Filler,
 } from "chart.js"
+import { TrendingUp, Users, Clock, Activity, Eye, Zap } from "lucide-react"
 
 ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, Filler)
 
 export default function ViewerChart({ data }) {
+    if (!data || data.length === 0) {
+        return (
+            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-gray-700/50 rounded-2xl p-8 text-center">
+                <div className="w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="w-8 h-8 text-gray-500" />
+                </div>
+                <p className="text-gray-400 text-lg">No viewer history available</p>
+                <p className="text-gray-500 text-sm mt-2">Start monitoring to see real-time analytics</p>
+            </div>
+        )
+    }
+
     const maxViewers = Math.max(...data.map((d) => d.y))
     const minViewers = Math.min(...data.map((d) => d.y))
     const avgViewers = Math.round(data.reduce((sum, d) => sum + d.y, 0) / data.length)
+    const currentViewers = data[data.length - 1]?.y || 0
 
     const chartData = {
         labels: data.map((d) =>
@@ -31,16 +45,20 @@ export default function ViewerChart({ data }) {
                 fill: true,
                 tension: 0.4,
                 borderWidth: 3,
-                pointRadius: 4,
-                pointHoverRadius: 6,
+                pointRadius: 0,
+                pointHoverRadius: 8,
                 pointBackgroundColor: "#ffffff",
-                pointBorderColor: "#3b82f6",
-                pointBorderWidth: 2,
-                pointHoverBackgroundColor: "#3b82f6",
+                pointBorderColor: "#a855f7",
+                pointBorderWidth: 3,
+                pointHoverBackgroundColor: "#a855f7",
                 pointHoverBorderColor: "#ffffff",
                 pointHoverBorderWidth: 3,
-                borderColor: "#3b82f6",
-                backgroundColor: "rgba(59, 130, 246, 0.08)",
+                borderColor: "#a855f7",
+                backgroundColor: "rgba(168, 85, 247, 0.1)",
+                shadowColor: "rgba(168, 85, 247, 0.3)",
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowOffsetY: 4,
             },
         ],
     }
@@ -54,13 +72,21 @@ export default function ViewerChart({ data }) {
         },
         plugins: {
             tooltip: {
-                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                backgroundColor: "rgba(0, 0, 0, 0.9)",
                 titleColor: "#ffffff",
                 bodyColor: "#ffffff",
-                borderColor: "#3b82f6",
-                borderWidth: 1,
-                cornerRadius: 8,
+                borderColor: "#a855f7",
+                borderWidth: 2,
+                cornerRadius: 12,
                 displayColors: false,
+                padding: 12,
+                titleFont: {
+                    size: 14,
+                    weight: "bold",
+                },
+                bodyFont: {
+                    size: 13,
+                },
                 callbacks: {
                     title: (context) => {
                         const date = new Date(data[context[0].dataIndex].x)
@@ -71,7 +97,7 @@ export default function ViewerChart({ data }) {
                             minute: "2-digit",
                         })
                     },
-                    label: (context) => `${context.parsed.y.toLocaleString()} viewers`,
+                    label: (context) => `👥 ${context.parsed.y.toLocaleString()} viewers`,
                 },
             },
             legend: {
@@ -83,7 +109,8 @@ export default function ViewerChart({ data }) {
                 ticks: {
                     color: "#6B7280",
                     font: {
-                        size: 12,
+                        size: 11,
+                        weight: "500",
                     },
                     maxTicksLimit: 8,
                 },
@@ -98,13 +125,16 @@ export default function ViewerChart({ data }) {
                 ticks: {
                     color: "#6B7280",
                     font: {
-                        size: 12,
+                        size: 11,
+                        weight: "500",
                     },
                     callback: (value) => value.toLocaleString(),
+                    padding: 8,
                 },
                 grid: {
-                    color: "rgba(229, 231, 235, 0.5)",
+                    color: "rgba(75, 85, 99, 0.3)",
                     drawBorder: false,
+                    lineWidth: 1,
                 },
                 border: {
                     display: false,
@@ -119,54 +149,64 @@ export default function ViewerChart({ data }) {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800">
+            <div className="px-6 py-4 border-b border-gray-700/50 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                            <svg
-                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                />
-                            </svg>
+                        <div className="p-2 bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-xl">
+                            <TrendingUp className="w-5 h-5 text-purple-400" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Viewership Analytics</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Real-time viewer engagement</p>
+                            <h3 className="text-lg font-bold text-white">Viewership Analytics</h3>
+                            <p className="text-sm text-gray-400">Real-time viewer engagement</p>
                         </div>
                     </div>
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">Live</span>
+                        <span className="text-xs text-green-400 font-medium uppercase tracking-wide">Live</span>
                     </div>
                 </div>
             </div>
 
-            {/* Stats */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                <div className="grid grid-cols-3 gap-4">
+            {/* Stats Grid */}
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-800/50 to-gray-900/50 border-b border-gray-700/50">
+                <div className="grid grid-cols-4 gap-4">
                     <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{maxViewers.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Peak</div>
-                    </div>
-                    <div className="text-center border-x border-gray-200 dark:border-gray-600">
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{avgViewers.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Average</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                            {data[data.length - 1]?.y.toLocaleString() || 0}
+                        <div className="flex items-center justify-center mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-green-600/20 to-green-500/20 border border-green-500/30 rounded-lg flex items-center justify-center">
+                                <Zap className="w-4 h-4 text-green-400" />
+                            </div>
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Current</div>
+                        <div className="text-xl font-bold text-green-400">{maxViewers.toLocaleString()}</div>
+                        <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Peak</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="flex items-center justify-center mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-600/20 to-blue-500/20 border border-blue-500/30 rounded-lg flex items-center justify-center">
+                                <Users className="w-4 h-4 text-blue-400" />
+                            </div>
+                        </div>
+                        <div className="text-xl font-bold text-blue-400">{avgViewers.toLocaleString()}</div>
+                        <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Average</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="flex items-center justify-center mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-purple-600/20 to-purple-500/20 border border-purple-500/30 rounded-lg flex items-center justify-center">
+                                <Eye className="w-4 h-4 text-purple-400" />
+                            </div>
+                        </div>
+                        <div className="text-xl font-bold text-purple-400">{currentViewers.toLocaleString()}</div>
+                        <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Current</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="flex items-center justify-center mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-orange-600/20 to-orange-500/20 border border-orange-500/30 rounded-lg flex items-center justify-center">
+                                <Activity className="w-4 h-4 text-orange-400" />
+                            </div>
+                        </div>
+                        <div className="text-xl font-bold text-orange-400">{minViewers.toLocaleString()}</div>
+                        <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Low</div>
                     </div>
                 </div>
             </div>
@@ -179,10 +219,22 @@ export default function ViewerChart({ data }) {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Updated {new Date().toLocaleTimeString()}</span>
-                    <span>{data.length} data points</span>
+            <div className="px-6 py-3 bg-gradient-to-r from-gray-800/30 to-gray-900/30 border-t border-gray-700/50">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-xs text-gray-400">
+                        <div className="flex items-center space-x-1">
+                            <Clock className="w-3 h-3" />
+                            <span>Updated {new Date().toLocaleTimeString()}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                            <Activity className="w-3 h-3" />
+                            <span>{data.length} data points</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                        <span className="text-xs text-gray-400">Viewer Count</span>
+                    </div>
                 </div>
             </div>
         </div>
