@@ -37,35 +37,22 @@ function ClipCard({ clip }) {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-            // For mobile devices, use a mobile-optimized download approach
+            // For mobile devices, use a direct link approach
             if (isMobile) {
-                setMobileMessage("Initiating download for mobile device...");
+                setMobileMessage("Opening download link for mobile device...");
 
-                // Try the mobile download endpoint first
+                // For mobile, open the download URL in a new window/tab
+                // This allows the mobile browser to handle the download appropriately
                 const downloadUrl = `/api/mobileDownload?clipId=${clip.clipId}`;
-
-                // Create a hidden iframe to initiate download on mobile
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = downloadUrl;
-                document.body.appendChild(iframe);
-
-                // Clean up after a delay
-                setTimeout(() => {
-                    if (document.body.contains(iframe)) {
-                        document.body.removeChild(iframe);
-                    }
-                }, 2000);
+                window.open(downloadUrl, '_blank');
 
                 setStatus("ok");
-                setMobileMessage("Download started! Check your downloads folder or browser downloads.");
+                setMobileMessage("Download link opened! Check your browser downloads or follow the link to save the video.");
 
                 // Clear message after some time
-                setTimeout(() => setMobileMessage(""), 5000);
+                setTimeout(() => setMobileMessage(""), 8000);
                 return;
-            }
-
-            // For Safari on desktop, use GET redirect approach
+            }            // For Safari on desktop, use GET redirect approach
             if (isSafari) {
                 const downloadUrl = `/api/clipDownload?clipId=${clip.clipId}`;
                 window.open(downloadUrl, "_blank");

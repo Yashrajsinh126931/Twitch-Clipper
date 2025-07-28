@@ -87,19 +87,17 @@ export default async function handler(req, res) {
             }
         }
 
-        // For mobile devices, especially iOS, we need to set proper headers
-        // and then redirect to the video URL with download-friendly headers
+        // For mobile devices, redirect to the video URL with download-friendly headers
+        // This avoids the 4MB API route limit and lets the browser handle the download
         const filename = `${clip.streamerName}_${clipId}.mp4`.replace(/[^a-zA-Z0-9._-]/g, '_');
 
-        // Set headers to suggest downloading
+        // Set headers to suggest this should be downloaded
         res.setHeader('Content-Type', 'video/mp4');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Cache-Control', 'no-cache');
 
-        // For mobile devices, redirect to the video URL
-        // This allows the device's built-in download functionality to work
+        // Redirect to the actual video URL - the browser will handle the download
         return res.redirect(mp4);
-
     } catch (err) {
         console.error("Mobile download error:", err);
         res.status(500).json({ error: "Download failed" });
